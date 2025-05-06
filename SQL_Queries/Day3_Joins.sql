@@ -1,0 +1,242 @@
+-- JOINS
+-- Inner Join
+-- Select name and orderid of all customers who have placed orders 
+SELECT
+	O.ORDER_ID,
+	C.CONTACT_NAME
+FROM
+	ORDERS O
+	INNER JOIN CUSTOMERS C ON O.CUSTOMER_ID = C.CUSTOMER_ID;
+
+-- List customers who have placed at least one order.
+SELECT DISTINCT
+	C.CONTACT_NAME
+FROM
+	CUSTOMERS C
+	INNER JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID
+ORDER BY
+	CONTACT_NAME;
+
+-- List all suppliers and the products they supply.
+SELECT
+	S.COMPANY_NAME,
+	P.PRODUCT_NAME
+FROM
+	SUPPLIERS S
+	INNER JOIN PRODUCTS P ON S.SUPPLIER_ID = P.SUPPLIER_ID;
+
+-- Show all orders with customer details, employee names, and the shipping company used.
+SELECT
+	O.ORDER_ID,
+	C.COMPANY_NAME AS CUSTOMER_NAME,
+	E.FIRST_NAME || ' ' || E.LAST_NAME AS EMPLOYEE_NAME,
+	S.COMPANY_NAME AS SHIPPER_NAME,
+	O.ORDER_DATE
+FROM
+	ORDERS O
+	INNER JOIN CUSTOMERS C ON O.CUSTOMER_ID = C.CUSTOMER_ID
+	INNER JOIN EMPLOYEES E ON O.EMPLOYEE_ID = E.EMPLOYEE_ID
+	INNER JOIN SHIPPERS S ON O.SHIP_VIA = S.SHIPPER_ID;
+
+SELECT
+	*
+FROM
+	ORDERS
+LIMIT
+	5;
+
+-- Find all employees and the customers they served, including order info.
+SELECT
+	E.FIRST_NAME || ' ' || E.LAST_NAME AS EMPLOYEE_NAME,
+	C.COMPANY_NAME AS CUSTOMER_NAME,
+	O.ORDER_ID,
+	O.ORDER_DATE
+FROM
+	EMPLOYEES E
+	INNER JOIN ORDERS O ON E.EMPLOYEE_ID = O.EMPLOYEE_ID
+	INNER JOIN CUSTOMERS C ON O.CUSTOMER_ID = C.CUSTOMER_ID;
+
+-- Left Join
+-- List all customers and any orders they've placed (including customers with no orders).
+SELECT
+	C.CONTACT_NAME,
+	O.ORDER_ID
+FROM
+	CUSTOMERS C
+	LEFT JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID
+ORDER BY
+	O.ORDER_ID NULLS FIRST;
+
+-- Display all products and their supplier info (include products with missing suppliers).
+SELECT
+	P.PRODUCT_NAME,
+	S.COMPANY_NAME AS SUPPLIER_NAME
+FROM
+	PRODUCTS P
+	LEFT JOIN SUPPLIERS S ON P.SUPPLIER_ID = S.SUPPLIER_ID;
+
+-- Show all orders and any employee responsible (even if no employee assigned).
+SELECT
+	O.ORDER_ID,
+	CONCAT(E.FIRST_NAME, ' ', E.LAST_NAME) AS EMPLOYEE_NAME
+FROM
+	ORDERS O
+	LEFT JOIN EMPLOYEES E ON O.EMPLOYEE_ID = E.EMPLOYEE_ID;
+
+-- Show each order with customer, employee, shipper, and product info — even if some parts are missing.
+SELECT
+	O.ORDER_ID,
+	C.COMPANY_NAME AS CUSTOMER,
+	E.FIRST_NAME || ' ' || E.LAST_NAME AS EMPLOYEE,
+	S.COMPANY_NAME AS SHIPPER,
+	P.PRODUCT_NAME,
+	OD.QUANTITY
+FROM
+	ORDERS O
+	LEFT JOIN CUSTOMERS C ON O.CUSTOMER_ID = C.CUSTOMER_ID
+	LEFT JOIN EMPLOYEES E ON O.EMPLOYEE_ID = E.EMPLOYEE_ID
+	LEFT JOIN SHIPPERS S ON O.SHIP_VIA = S.SHIPPER_ID
+	LEFT JOIN ORDER_DETAILS OD ON O.ORDER_ID = OD.ORDER_ID
+	LEFT JOIN PRODUCTS P ON OD.PRODUCT_ID = P.PRODUCT_ID;
+
+-- Right Join
+-- Show all orders and their customers (include all customers, even those without any orders).
+SELECT
+	O.ORDER_ID,
+	C.CONTACT_NAME
+FROM
+	ORDERS O
+	RIGHT JOIN CUSTOMERS C ON O.CUSTOMER_ID = C.CUSTOMER_ID;
+
+-- Show all products and their order details (even if some products have no order details).
+SELECT
+	P.PRODUCT_NAME,
+	OD.QUANTITY,
+	OD.ORDER_ID
+FROM
+	ORDER_DETAILS OD
+	RIGHT JOIN PRODUCTS P ON OD.PRODUCT_ID = P.PRODUCT_ID;
+
+-- Find all orders, even if no employee is associated with them
+SELECT
+	E.FIRST_NAME,
+	E.LAST_NAME,
+	O.ORDER_ID
+FROM
+	EMPLOYEES E
+	RIGHT JOIN ORDERS O ON E.EMPLOYEE_ID = O.EMPLOYEE_ID;
+
+-- all products and orders even if its not in order details and customers with no orders 
+SELECT
+	P.PRODUCT_NAME,
+	O.ORDER_ID,
+	C.COMPANY_NAME AS CUSTOMER,
+	OD.QUANTITY
+FROM
+	ORDER_DETAILS OD
+	RIGHT JOIN ORDERS O ON OD.ORDER_ID = O.ORDER_ID
+	RIGHT JOIN CUSTOMERS C ON O.CUSTOMER_ID = C.CUSTOMER_ID
+	RIGHT JOIN PRODUCTS P ON OD.PRODUCT_ID = P.PRODUCT_ID;
+
+-- Full JOIN
+--  List all customers and all orders — even if there is no match.
+SELECT
+	C.CONTACT_NAME,
+	O.ORDER_ID
+FROM
+	CUSTOMERS C
+	FULL OUTER JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID;
+
+-- List all employees and the territories they cover, and all territories (even if unassigned to any employee)
+SELECT
+	E.EMPLOYEE_ID,
+	E.FIRST_NAME,
+	E.LAST_NAME,
+	TE.TERRITORY_ID
+FROM
+	EMPLOYEES E
+	FULL OUTER JOIN EMPLOYEE_TERRITORIES TE ON E.EMPLOYEE_ID = TE.EMPLOYEE_ID;
+
+-- Cross Join
+-- Generate all possible pairs of employees and products.
+SELECT
+	E.FIRST_NAME,
+	P.PRODUCT_NAME
+FROM
+	EMPLOYEES E
+	CROSS JOIN PRODUCTS P;
+
+-- Generate all possible pairs of employees and territories.
+-- Helpful to simulate assigning employees to regions. Tables used: employees, territories
+SELECT
+	E.EMPLOYEE_ID,
+	E.FIRST_NAME || ' ' || E.LAST_NAME AS EMPLOYEE_NAME,
+	T.TERRITORY_DESCRIPTION
+FROM
+	EMPLOYEES E
+	CROSS JOIN TERRITORIES T;
+
+-- Self Join
+SELECT
+	E1.FIRST_NAME || ' ' || E1.LAST_NAME AS EMPLOYEE_NAME,
+	E2.FIRST_NAME || ' ' || E2.LAST_NAME AS MANAGER_NAME
+FROM
+	EMPLOYEES E1
+	INNER JOIN EMPLOYEES E2 ON E1.REPORTS_TO = E2.EMPLOYEE_ID;
+
+-- . Show only employees who have a manager
+SELECT
+	E1.FIRST_NAME || ' ' || E1.LAST_NAME AS EMPLOYEE_NAME,
+	E2.FIRST_NAME || ' ' || E2.LAST_NAME AS MANAGER_NAME
+FROM
+	EMPLOYEES E1
+	LEFT JOIN EMPLOYEES E2 ON E1.REPORTS_TO = E2.EMPLOYEE_ID;
+	
+
+	
+-- USING
+SELECT
+	*
+FROM
+	ORDERS
+	JOIN CUSTOMERS USING (CUSTOMER_ID);
+
+--  "Only in Left Table" (Customers without Orders)
+SELECT
+	C.CUSTOMER_ID,
+	C.CONTACT_NAME
+FROM
+	CUSTOMERS C
+	LEFT JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID
+WHERE
+	O.ORDER_ID IS NULL;
+
+-- "Only in Right Table" (order without order detail)
+SELECT
+	O.*
+FROM
+	ORDER_DETAILS OD
+	RIGHT JOIN ORDERS O ON O.ORDER_ID = OD.ORDER_ID
+WHERE
+	OD.ORDER_ID IS NULL;
+
+-- Get Only Rows from Left or Right Table, Not in Both
+SELECT
+	C.CUSTOMER_ID,
+	C.CONTACT_NAME,
+	O.ORDER_ID
+FROM
+	CUSTOMERS C
+	FULL OUTER JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID
+WHERE
+	C.CUSTOMER_ID IS NULL
+	OR O.CUSTOMER_ID IS NULL;
+
+-- Natural Join
+SELECT
+	*
+FROM
+	CUSTOMERS
+	NATURAL JOIN ORDERS;
+
+	
